@@ -1,6 +1,8 @@
+"use client";
 import { motion } from "framer-motion";
 import { Sparkles, ShieldCheck, Camera, Rocket } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import {
@@ -8,7 +10,6 @@ import {
   DEFAULT_OPENAI_BASE_URL,
   useAiStore,
 } from "@/store/ai-store";
-import { useLocation, useNavigate } from "react-router-dom";
 import {
   Accordion,
   AccordionContent,
@@ -39,8 +40,8 @@ export default function InitPage() {
     setBaseUrl(activeSource?.baseUrl);
   }, [activeSource]);
 
-  const navigate = useNavigate();
-  const location = useLocation() as { state?: { from?: Location } };
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useTranslation("commons", { keyPrefix: "init-page" });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -59,8 +60,9 @@ export default function InitPage() {
           : DEFAULT_OPENAI_BASE_URL),
       enabled: true,
     });
-    const to = location.state?.from?.pathname ?? "/";
-    navigate(to, { replace: true });
+    const from = searchParams.get("from");
+    const to = from && from !== "/init" ? from : "/";
+    router.replace(to);
   };
 
   return (

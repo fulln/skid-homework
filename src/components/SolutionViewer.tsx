@@ -1,3 +1,5 @@
+"use client";
+
 import "katex/dist/katex.min.css";
 import { useRef, type ComponentProps } from "react";
 import Markdown from "react-markdown";
@@ -18,8 +20,9 @@ import {
 } from "./dialogs/ImproveSolutionDialog";
 import { useTranslation } from "react-i18next";
 import { useAiStore } from "@/store/ai-store";
-import { useNavigate } from "react-router-dom";
 import { MessageSquare } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { encodeSeedChat } from "@/lib/chat-seed";
 
 export type SolutionViewerProps = {
   entry: OrderedSolution;
@@ -45,7 +48,7 @@ export default function SolutionViewer({
   const { t } = useTranslation("commons", { keyPrefix: "solution-viewer" });
   const sources = useAiStore((s) => s.sources);
   const activeSourceId = useAiStore((s) => s.activeSourceId);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const viewerRef = useRef<HTMLElement | null>(null);
 
@@ -169,17 +172,15 @@ export default function SolutionViewer({
     prefillLines.push("", t("chat.prefill.outro"));
     const prefillMessage = prefillLines.join("\n");
 
-    navigate("/chat", {
-      state: {
-        seedChat: {
-          title: chatTitle,
-          prefillMessage,
-          contextMessage,
-          sourceId: preferredSource.id,
-          model: preferredSource.model,
-        },
-      },
+    const payload = encodeSeedChat({
+      title: chatTitle,
+      prefillMessage,
+      contextMessage,
+      sourceId: preferredSource.id,
+      model: preferredSource.model,
     });
+    const target = payload ? `/chat?seed=${payload}` : "/chat";
+    router.push(target);
   };
 
   return (

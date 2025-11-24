@@ -24,7 +24,7 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 export function ThemeProvider({
   children,
   defaultTheme = "system",
-  storageKey = "vite-ui-theme",
+  storageKey = "skidhw-ui-theme",
   ...props
 }: ThemeProviderProps) {
   const storeTheme = useSettingsStore((s) => s.theme);

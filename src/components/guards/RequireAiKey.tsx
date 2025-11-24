@@ -1,6 +1,7 @@
-import type { PropsWithChildren } from "react";
-import { Navigate, useLocation } from "react-router-dom";
-import { useHasActiveAiKey } from "@/store/ai-store";
+"use client";
+import { useEffect, useState, type PropsWithChildren } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useHasActiveAiKey, useAiStore } from "@/store/ai-store";
 
 type RequireAiKeyProps = PropsWithChildren<{
   fallback: string;
@@ -11,10 +12,35 @@ export default function RequireAiKey({
   fallback,
 }: RequireAiKeyProps) {
   const hasKey = useHasActiveAiKey();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [hydrated, setHydrated] = useState(false);
 
-  if (!hasKey) {
-    return <Navigate to={fallback} replace state={{ from: location }} />;
+  useEffect(() => {
+    const alreadyHydrated = useAiStore.persist?.hasHydrated?.();
+    if (alreadyHydrated) {
+      setHydrated(true);
+      return;
+    }
+
+    const unsub = useAiStore.persist?.onFinishHydration?.(() => {
+      setHydrated(true);
+    });
+
+    return () => unsub?.();
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated || hasKey || pathname === fallback) return;
+    const params = new URLSearchParams();
+    if (pathname) {
+      params.set("from", pathname);
+    }
+    router.replace(`${fallback}?${params.toString()}`);
+  }, [fallback, hasKey, hydrated, pathname, router]);
+
+  if (!hydrated || !hasKey) {
+    return null;
   }
 
   return children;

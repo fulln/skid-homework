@@ -5,17 +5,15 @@ import { useEffect, useState } from "react";
  * Falls back to `false` during SSR or environments without `window`.
  */
 export function useMediaQuery(query: string) {
-  const getMatches = () =>
-    typeof window !== "undefined" ? window.matchMedia(query).matches : false;
-
-  const [matches, setMatches] = useState(getMatches);
+  // Start with `false` to keep SSR/CSR markup consistent; update after mount.
+  const [matches, setMatches] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const mql = window.matchMedia(query);
     const listener = (event: MediaQueryListEvent) => setMatches(event.matches);
-    // Update immediately in case query changed before subscription
+    // Update after mount
     setMatches(mql.matches);
     mql.addEventListener("change", listener);
     return () => mql.removeEventListener("change", listener);
@@ -23,4 +21,3 @@ export function useMediaQuery(query: string) {
 
   return matches;
 }
-

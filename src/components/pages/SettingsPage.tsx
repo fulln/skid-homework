@@ -1,3 +1,5 @@
+"use client";
+
 import {
   DEFAULT_GEMINI_BASE_URL,
   DEFAULT_OPENAI_BASE_URL,
@@ -14,7 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
   Card,
@@ -106,10 +108,10 @@ export default function SettingsPage() {
     setLocalThinkingBudget(activeSource?.thinkingBudget ?? 8192);
   }, [activeSource]);
 
-  const navigate = useNavigate();
+  const router = useRouter();
   const handleBack = useCallback(() => {
-    navigate("/");
-  }, [navigate]);
+    router.push("/");
+  }, [router]);
   useHotkeys("esc", handleBack);
 
   useEffect(() => {

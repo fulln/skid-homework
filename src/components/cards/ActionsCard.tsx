@@ -1,3 +1,5 @@
+"use client";
+
 import type { FileItem } from "@/store/problems-store";
 import { useCallback } from "react";
 import ActionsArea from "../areas/ActionsArea";
@@ -6,7 +8,7 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Separator } from "../ui/separator";
 import UploadArea from "../areas/UploadArea";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useShortcut } from "@/hooks/use-shortcut";
@@ -34,15 +36,15 @@ export default function ActionsCard({
   className,
 }: ActionsCardProps) {
   const { t } = useTranslation("commons", { keyPrefix: "actions" });
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleSettingsBtnClick = useCallback(() => {
-    navigate("/settings");
-  }, [navigate]);
+    router.push("/settings");
+  }, [router]);
 
   const handleChatBtnClick = useCallback(() => {
-    navigate("/chat");
-  }, [navigate]);
+    router.push("/chat");
+  }, [router]);
 
   const settingsShortcut = useShortcut(
     "openSettings",

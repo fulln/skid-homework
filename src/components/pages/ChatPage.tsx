@@ -1,7 +1,8 @@
+"use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
   Plus,
@@ -13,6 +14,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
+import { decodeSeedChat, type SeedChatState } from "@/lib/chat-seed";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
@@ -56,18 +58,10 @@ function mapMessagesToAi(
     }));
 }
 
-type SeedChatState = {
-  title?: string;
-  prefillMessage?: string;
-  contextMessage?: string;
-  sourceId?: string;
-  model?: string;
-};
-
 export default function ChatPage() {
   const { t } = useTranslation("commons", { keyPrefix: "chat-page" });
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const translate = useCallback(
     (key: string, options?: Record<string, unknown>) =>
       t(key as never, options as never) as unknown as string,
@@ -184,17 +178,22 @@ export default function ChatPage() {
 
   // --- Effects for Handling Location State and Model Input ---
   useEffect(() => {
-    const state = location.state as { seedChat?: SeedChatState } | undefined;
-    if (!state?.seedChat) return;
+    const seedParam = searchParams.get("seed");
+    if (!seedParam) return;
 
-    const seed = state.seedChat;
+    const seed = decodeSeedChat(seedParam);
+    if (!seed) return;
+
     setSeedData(seed);
     if (seed.prefillMessage) setMessageInput(seed.prefillMessage);
     if (seed.sourceId) setCurrentSourceId(seed.sourceId);
     if (seed.model) setModelInput(seed.model);
 
-    navigate(location.pathname, { replace: true });
-  }, [location, navigate]);
+    const params = new URLSearchParams(searchParams);
+    params.delete("seed");
+    const next = params.toString();
+    router.replace(next ? `/chat?${next}` : "/chat");
+  }, [router, searchParams]);
 
   useEffect(() => {
     if (activeThread) {
@@ -590,8 +589,8 @@ export default function ChatPage() {
   }, [clearSelection, resolvedSource, setActiveChat]);
 
   // --- Hotkeys ---
-  useHotkeys("esc", () => navigate("/"), { enableOnFormTags: true }, [
-    navigate,
+  useHotkeys("esc", () => router.push("/"), { enableOnFormTags: true }, [
+    router,
   ]);
   useHotkeys(["ctrl+shift+o"], handleNewChat, { enableOnFormTags: true }, [
     handleNewChat,
@@ -838,7 +837,7 @@ export default function ChatPage() {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2 flex-wrap justify-end w-full sm:w-auto">
-            <Button variant="outline" size="sm" onClick={() => navigate("/")}>
+            <Button variant="outline" size="sm" onClick={() => router.push("/")}>
               {t("actions.back")} <Kbd>ESC</Kbd>
             </Button>
             <Button

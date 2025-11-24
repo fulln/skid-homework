@@ -1,3 +1,4 @@
+"use client";
 import { toast } from "sonner";
 import { Info, StarIcon } from "lucide-react";
 import { useEffect, useMemo, useCallback, useRef, useState } from "react";
@@ -21,12 +22,12 @@ import { useTranslation } from "react-i18next";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { useShortcut } from "@/hooks/use-shortcut";
 
 export default function ScanPage() {
   const { t } = useTranslation("commons", { keyPrefix: "scan-page" });
-  const navigate = useNavigate();
+  const router = useRouter();
   // Destructure all necessary state and new semantic actions from the store.
   const {
     imageItems: items,
@@ -78,9 +79,9 @@ export default function ScanPage() {
     "openChat",
     (event) => {
       event.preventDefault();
-      navigate("/chat");
+      router.push("/chat");
     },
-    [navigate],
+    [router],
   );
 
   useEffect(() => {
