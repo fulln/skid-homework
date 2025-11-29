@@ -52,6 +52,9 @@ export interface SettingsState {
 
   traits: string;
   setTraits: (traits: string) => void;
+
+  devtoolsEnabled: boolean;
+  setDevtoolsState: (state: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -64,6 +67,7 @@ export const useSettingsStore = create<SettingsState>()(
       languageInitialized: false,
       keybindings: { ...DEFAULT_SHORTCUTS },
       traits: "",
+      devtoolsEnabled: false,
 
       setImageBinarizing: (state) => set({ imageBinarizing: state }),
       setShowQwenHint: (state) => set({ showQwenHint: state }),
@@ -95,6 +99,7 @@ export const useSettingsStore = create<SettingsState>()(
         })),
       resetKeybindings: () => set({ keybindings: { ...DEFAULT_SHORTCUTS } }),
       setTraits: (traits) => set({ traits }),
+      setDevtoolsState: (state) => set({ devtoolsEnabled: state }),
     }),
     {
       name: "skidhw-storage",
@@ -107,6 +112,7 @@ export const useSettingsStore = create<SettingsState>()(
         languageInitialized: state.languageInitialized,
         keybindings: state.keybindings,
         traits: state.traits,
+        devtools: state.devtoolsEnabled,
       }),
       version: 5,
       migrate: (persistedState, version) => {

@@ -85,6 +85,8 @@ export default function SettingsPage() {
     keybindings,
     setKeybinding,
     resetKeybindings,
+    devtoolsEnabled,
+    setDevtoolsState,
   } = useSettingsStore((s) => s);
   const { theme: activeTheme, setTheme } = useTheme();
 
@@ -856,6 +858,15 @@ export default function SettingsPage() {
               <Label htmlFor="show-qwen-hint">
                 {t("advanced.ui.show-qwen-hint")}
               </Label>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Checkbox
+                id="devtools-enabled"
+                checked={devtoolsEnabled}
+                onCheckedChange={(state) => setDevtoolsState(Boolean(state))}
+              />
+              <Label htmlFor="devtools-enabled">Enable Devtools</Label>
             </div>
           </CardContent>
         </Card>
