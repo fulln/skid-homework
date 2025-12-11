@@ -19,7 +19,7 @@ export default function Explanation({
 }: ExplanationProps) {
   const { t } = useTranslation("commons", { keyPrefix: "solution-viewer" });
 
-  const [visibleStepCounter, setVisibleStepCounter] = useState(0);
+  const [visibleStepCounter, setVisibleStepCounter] = useState(1);
   const [hasMoreHints, setHasMoreHints] = useState(steps?.length !== 0);
 
   const visibleSteps = useMemo(() => {
