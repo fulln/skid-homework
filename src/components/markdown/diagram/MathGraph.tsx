@@ -79,7 +79,6 @@ export default function MathGraph({ code }: { code: string }) {
         try {
           parsed = JSON.parse(code);
         } catch {
-          // do nothing here
           console.error("Failed to parse diagram", code);
           throw new Error("Failed to parse diagram");
         }
@@ -90,7 +89,6 @@ export default function MathGraph({ code }: { code: string }) {
         if (Array.isArray(parsed.data)) {
           config = parsed as AdvancedPlotConfig;
         } else {
-          // Legacy shorthand support
           config = {
             data: [
               {
@@ -116,8 +114,6 @@ export default function MathGraph({ code }: { code: string }) {
         // -----------------------------------------------------------
         const processedData: FunctionItem[] = config.data.map((item, index) => {
           const fnType = item.fnType || "linear";
-
-          // Determine graphType
           let graphType = item.graphType;
           if (!graphType) {
             if (fnType === "implicit") graphType = "interval";
@@ -147,7 +143,20 @@ export default function MathGraph({ code }: { code: string }) {
         // CONFIG & RENDER
         // -----------------------------------------------------------
         const xDomain = config.xAxis?.domain || [-10, 10];
-        const yDomain = config.yAxis?.domain || [-10, 10];
+        let yDomain = config.yAxis?.domain || [-10, 10];
+
+        // Adjust y-domain to match the aspect ratio
+        const aspectRatio = dimensions.width / dimensions.height;
+        const xRange = xDomain[1] - xDomain[0];
+        const yRange = yDomain[1] - yDomain[0];
+
+        if (yRange / xRange !== aspectRatio) {
+          // Adjust yDomain to keep the aspect ratio correct
+          const newYRange = xRange * (dimensions.height / dimensions.width);
+          const centerY = (yDomain[0] + yDomain[1]) / 2;
+          const halfYRange = newYRange / 2;
+          yDomain = [centerY - halfYRange, centerY + halfYRange];
+        }
 
         if (!rootEl.current) return;
 
@@ -185,7 +194,6 @@ export default function MathGraph({ code }: { code: string }) {
       }
     };
 
-    // 使用 requestAnimationFrame 确保在布局更新后绘制，避免闪烁
     const rafId = requestAnimationFrame(drawGraph);
     return () => cancelAnimationFrame(rafId);
   }, [code, dimensions]);
@@ -234,7 +242,6 @@ export default function MathGraph({ code }: { code: string }) {
         </div>
       )}
 
-      {/* Error State */}
       {error && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/90 backdrop-blur-sm">
           <div className="rounded-md bg-red-50 px-4 py-2 text-sm font-medium text-red-600 border border-red-100 shadow-sm">
